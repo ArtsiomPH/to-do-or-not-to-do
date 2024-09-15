@@ -1,0 +1,8 @@
+{
+    "json.schemaDownload.enable": true,
+    "python.analysis.autoSearchPaths": false,
+    "python.analysis.extraPaths": [],
+    "python.autoComplete.extraPaths": [],
+    "python.defaultInterpreterPath": ".local/to-do-or-not-to-do-zLix-ebb-py3.11/bin/python",
+    "python.terminal.activateEnvironment": false
+}
