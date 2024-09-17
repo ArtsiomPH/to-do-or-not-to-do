@@ -5,13 +5,11 @@ from domains.fs import dirs
 
 conf = Config()
 
-
 SECRET_KEY = conf.SECRET_KEY
 
 DEBUG = conf.MODE_DEBUG
 
 ALLOWED_HOSTS = ["*"]
-
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -22,7 +20,8 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "rest_framework",
-    "todo",
+    "rest_framework_simplejwt",
+    "todo.apps.ToDoConfig",
 ]
 
 MIDDLEWARE = [
@@ -58,7 +57,7 @@ WSGI_APPLICATION = "project.wsgi.application"
 
 DATABASES = {
     "default": dj_database_url.parse(conf.PRIMARY_DATABASE_URL),
-    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -86,6 +85,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = "todo.User"
 
 LANGUAGE_CODE = "en-us"
 
@@ -114,9 +114,10 @@ STATIC_ROOT = dirs.DIR_STATIC
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
-    ]
+    ],
 }

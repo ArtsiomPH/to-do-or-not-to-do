@@ -137,8 +137,9 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONUTF8=1
 
-# integrate static stuff into this image
-
-RUN task collect-static
-
 EXPOSE 80
+
+ENTRYPOINT ["sh", "./docker-entrypoint.sh"]
+
+HEALTHCHECK --interval=12s --timeout=12s --start-period=30s \
+            CMD curl -f http://localhost:8000/api/ || exit 1
