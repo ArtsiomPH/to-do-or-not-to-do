@@ -5,5 +5,4 @@ from django.urls import path
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("todo.urls")),
-    path("drf/", include("rest_framework.urls")),
 ]

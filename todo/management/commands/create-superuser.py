@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
     def handle(self, *args: Any, **options: Any) -> None:
         username = "admin"
-        password = "admin1234"
+        password = "admin1234"  # noqa: S105
         email = "admin@admin.com"
 
         if User.objects.filter(username=username).exists():

@@ -19,6 +19,7 @@ pydantic-settings = "2.0.2"
 python = "3.11.7"
 requests = "2.31.0"
 whitenoise = {extras = ["brotli"], version = "6.5.0"}
+orjson = "^3.10.7"
 
 [tool.poetry.group.dev.dependencies]
 autoflake = "^2.2.0"

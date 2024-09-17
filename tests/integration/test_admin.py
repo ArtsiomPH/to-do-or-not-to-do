@@ -10,15 +10,13 @@ from http import HTTPStatus
 from typing import Container
 from typing import Type
 
-from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
 from todo.models import Task
-
-User = get_user_model()
+from todo.models import User
 
 
 class TestAdmin(APITestCase):
@@ -57,9 +55,9 @@ class TestAdmin(APITestCase):
             assert response.status_code == HTTPStatus.OK, response.content
 
     def test_user(self) -> None:
-        self.assert_forms(User, self.admin.id)
+        self.assert_forms(User, self.admin.pk)
 
     def test_task(self) -> None:
         title = "test_title"
         task = Task.objects.create(title=title, user=self.admin)
-        self.assert_forms(Task, task.id)
+        self.assert_forms(Task, task.pk)
