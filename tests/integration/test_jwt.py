@@ -1,93 +1,69 @@
-# from datetime import timedelta
-#
-# from django.urls import reverse
-# from factory import Faker
-# from factory import PostGenerationMethodCall
-# from factory.django import DjangoModelFactory
-# from freezegun import freeze_time
-# from rest_framework import status
-# from rest_framework.test import APITestCase
-#
-# from todo.models import User
-#
-#
-# class UserFactory(DjangoModelFactory):
-#     username = Faker("user_name")
-#     password = PostGenerationMethodCall("set_password", "password")
-#
-#     class Meta:
-#         model = User
-#
-#
-# class TestJWTAuth(APITestCase):
-#     token_url = reverse("token_obtain_pair")
-#     refresh_token_url = reverse("token_refresh")
-#     any_api_url = reverse("tasks-list")
-#
-#     @staticmethod
-#     def create_user() -> User:
-#         return UserFactory.create()
-#
-#     def token_request(
-#         self,
-#         username: str = None,
-#         password: str = "password"
-#         ):
-#         client = self.client_class()
-#         if not username:
-#             username = self.create_user().username
-#         return client.post(
-#             self.token_url, data={"username": username, "password": password}
-#         )
-#
-#     def refresh_token_request(self, refresh_token: str):
-#         client = self.client_class()
-#         return client.post(
-#             self.refresh_token_url, data={"refresh": refresh_token}
-#         )
-#
-#     def get_refresh_token(self):
-#         response = self.token_request()
-#         return response.json()["refresh"]
-#
-#     def test_successful_auth(self) -> None:
-#         response = self.token_request()
-#         assert response.status_code == status.HTTP_200_OK
-#         assert response.json()["refresh"]
-#         assert response.json()["access"]
-#
-#     def test_unsuccessful_auth(self):
-#         response = self.token_request(username="incorrect_username")
-#         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-#
-#     def test_refresh_token(self):
-#         refresh_token = self.get_refresh_token()
-#         response = self.refresh_token_request(refresh_token)
-#         assert response.status_code == status.HTTP_200_OK
-#         assert response.json()["access"]
-#
-#     def test_token_auth(self) -> None:
-#         client = self.client_class()
-#         response = client.get(self.any_api_url)
-#         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-#
-#         response = self.token_request()
-#         token = response.json()["access"]
-#         client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
-#         response = client.get(self.any_api_url)
-#         assert response.status_code == status.HTTP_200_OK
-#
-#     def test_refresh_lives_lower_than_one_day(self) -> None:
-#         with freeze_time() as frozen_time:
-#             refresh_token = self.get_refresh_token()
-#             frozen_time.tick(timedelta(hours=23, minutes=59))
-#             response = self.refresh_token_request(refresh_token)
-#             assert response.status_code == status.HTTP_200_OK
-#             assert response.json()["access"]
-#
-#     def test_refresh_dies_after_one_day(self) -> None:
-#         with freeze_time() as frozen_time:
-#             refresh_token = self.get_refresh_token()
-#             frozen_time.tick(timedelta(days=1))
-#             response = self.refresh_token_request(refresh_token)
-#             assert response.status_code == status.HTTP_401_UNAUTHORIZED
+from datetime import timedelta
+
+import pytest
+from freezegun import freeze_time
+from rest_framework import status
+
+from testlib.client import Client
+from todo.models import User
+
+
+def test_successful_auth(
+    client: Client,
+    random_user: User,
+    user_password: str,
+) -> None:
+    response = client.authenticate(
+        username=random_user.username, password=user_password
+    )
+    assert response.access
+    assert response.refresh
+
+
+def test_unsuccessful_auth(
+    client: Client,
+) -> None:
+    with pytest.raises(client.ApiError) as exc:
+        client.authenticate(  # noqa: S106
+            username="incorrect_username", password="<PASSWORD>"
+        )
+    assert exc.value.http_code == status.HTTP_401_UNAUTHORIZED
+    assert exc.value.message == {
+        "detail": "No active account found with the given credentials"
+    }
+
+
+def test_refresh_token(
+    client: Client,
+    refresh_token: str,
+) -> None:
+    response = client.refresh_token_request(refresh_token)
+    assert response.access
+
+
+@pytest.mark.skip("no api with permissions")
+def test_token_auth(
+    client: Client,
+    random_user: User,
+    user_password: str,
+) -> None:
+    response = client.api_request()
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    successful_response = client.authenticate(
+        username=random_user.username, password=user_password
+    )
+    access_token = successful_response.access
+    headers = {"Authorization": "Bearer " + access_token}
+    response = client.api_request(headers=headers)
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_refresh_lives_lower_than_one_day(
+    client: Client,
+    refresh_token: str,
+) -> None:
+    with freeze_time() as frozen_time:
+        frozen_time.tick(timedelta(hours=23, minutes=59))
+        response = client.refresh_token_request(refresh_token)
+        assert response.access

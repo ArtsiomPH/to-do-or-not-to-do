@@ -1,10 +1,17 @@
+import os
 from typing import Iterable
 
+import django
 import pytest
 import requests
 from faker import Faker
 
+if "env setting":
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
+    django.setup()
+
 from testlib.client import Client
+from todo.models import User
 
 DEFAULT_HEADERS = {
     "Accept": "application/json",
@@ -28,3 +35,32 @@ def client() -> Iterable[Client]:
 def random_username() -> Iterable[str]:
     username = fake.user_name()
     yield username
+
+
+@pytest.fixture(scope="function")
+def user_password() -> Iterable[str]:
+    password = fake.password(length=7)
+    yield password
+
+
+@pytest.fixture(scope="function")
+def random_user(
+    random_username: str,
+    user_password: str,
+) -> Iterable[User]:
+    user = User.objects.create_user(
+        username=random_username, password=user_password
+    )
+    yield user
+    user.delete()
+
+
+@pytest.fixture(scope="function")
+def refresh_token(
+    client: Client, random_user: User, user_password: str
+) -> Iterable[str]:
+    response = client.authenticate(
+        username=random_user.username, password=user_password
+    )
+    token = response.refresh
+    yield token
