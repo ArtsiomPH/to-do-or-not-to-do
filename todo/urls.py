@@ -6,8 +6,10 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.views import TokenVerifyView
 
 from todo.views import SignupView
+from todo.views import TaskViewSet
 
 router = routers.DefaultRouter()
+router.register(prefix="tasks", viewset=TaskViewSet, basename="task")
 
 urlpatterns = [
     path("", include(router.urls)),

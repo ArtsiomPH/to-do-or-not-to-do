@@ -2,6 +2,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
+from todo.models import Task
 from todo.models import User
 
 
@@ -54,3 +55,9 @@ class SignupSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = ["description", "title", "status", "user"]
