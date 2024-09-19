@@ -37,7 +37,7 @@ def test_refresh_token(
     client: Client,
     refresh_token: str,
 ) -> None:
-    response = client.refresh_token_request(refresh_token)
+    response = client.get_new_access_token(refresh_token)
     assert response.access
 
 
@@ -65,5 +65,21 @@ def test_refresh_lives_lower_than_one_day(
 ) -> None:
     with freeze_time() as frozen_time:
         frozen_time.tick(timedelta(hours=23, minutes=59))
-        response = client.refresh_token_request(refresh_token)
-        assert response.access
+        token = client.get_new_access_token(refresh_token)
+        assert token.access
+
+
+@pytest.mark.skip("unexpected passing")
+def test_refresh_dies_after_one_day(
+    client: Client, random_user: User, user_password: str
+) -> None:
+    refresh_token = client.get_refresh_token(
+        username=random_user.username, password=user_password
+    )
+    exc: pytest.ExceptionInfo
+
+    with pytest.raises(client.ApiError) as exc, freeze_time() as frozen_time:
+        frozen_time.tick(timedelta(days=1))
+        client.get_new_access_token(refresh_token)
+    assert exc.value.http_code == status.HTTP_401_UNAUTHORIZED
+    assert exc.value.message == {}

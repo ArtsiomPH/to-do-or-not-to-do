@@ -116,7 +116,7 @@ class Client:
 
         return response.refresh
 
-    def refresh_token_request(
+    def get_new_access_token(
         self,
         refresh_token: str,
     ) -> AccessTokenResponse:
