@@ -6,6 +6,9 @@ from django.utils.translation import gettext_lazy as _
 class User(AbstractUser):
     first_name = models.CharField(_("first name"), max_length=150)
 
+    def __str__(self) -> str:
+        return self.username
+
 
 class Task(models.Model):
     class TaskStatus(models.TextChoices):
@@ -19,3 +22,6 @@ class Task(models.Model):
         choices=TaskStatus.choices, default=TaskStatus.NEW
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return self.title

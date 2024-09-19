@@ -7,6 +7,7 @@ from .models import User
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "description",
         "status",
         "title",
@@ -17,6 +18,7 @@ class TaskAdmin(admin.ModelAdmin):
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "username",
         "first_name",
         "last_name",

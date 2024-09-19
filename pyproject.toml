@@ -20,6 +20,7 @@ python = "3.11.7"
 requests = "2.31.0"
 whitenoise = {extras = ["brotli"], version = "6.5.0"}
 orjson = "^3.10.7"
+django-filter = "^24.3"
 
 [tool.poetry.group.dev.dependencies]
 autoflake = "^2.2.0"

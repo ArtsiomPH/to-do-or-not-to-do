@@ -2,7 +2,7 @@ import requests
 
 
 def test_happy() -> None:
-    url = "http://localhost:8000/api"
+    url = "http://localhost:8000/admin/"
 
     try:
         response: requests.Response = requests.get(url, timeout=30)
@@ -13,4 +13,4 @@ def test_happy() -> None:
     assert response.status_code == 200
 
     assert "Content-Type" in response.headers
-    assert response.headers["Content-Type"] == "application/json"
+    assert response.headers["Content-Type"] == "text/html; charset=utf-8"

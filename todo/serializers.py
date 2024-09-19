@@ -63,7 +63,15 @@ class SignupSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ["description", "title", "status", "user"]
+        fields = ["id", "title", "description", "status", "user"]
+        extra_kwargs = {"id": {"read_only": True}}
+
+
+class UpdateTaskStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = ["status"]
+        extra_kwargs = {"status": {"required": True}}
 
 
 class CustomTokenVerifySerializer(TokenVerifySerializer):
