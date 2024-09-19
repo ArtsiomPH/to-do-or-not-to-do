@@ -11,6 +11,7 @@ if "env setting":
     django.setup()
 
 from testlib.client import Client
+from todo.models import Task
 from todo.models import User
 
 DEFAULT_HEADERS = {
@@ -64,3 +65,24 @@ def refresh_token(
     )
     token = response.refresh
     yield token
+
+
+@pytest.fixture(scope="function")
+def random_user_access_token(
+    client: Client, random_user: User, user_password: str
+) -> str:
+    response = client.authenticate(
+        username=random_user.username, password=user_password
+    )
+
+    access = response.access
+    return access
+
+
+@pytest.fixture(scope="function")
+def random_task() -> Iterable[Task]:
+    title = fake.word()
+    description = fake.text()
+    status: str = fake.random_element(elements=Task.TaskStatus.values)
+    task = Task(title=title, description=description, status=status)
+    yield task

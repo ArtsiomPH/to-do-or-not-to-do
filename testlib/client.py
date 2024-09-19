@@ -1,10 +1,14 @@
 from dataclasses import dataclass
+from functools import cached_property
 from typing import final
 
 import orjson
 import requests
 from pydantic import BaseModel
 from pydantic import Extra
+from pydantic import Field
+
+from todo.models import User
 
 
 class MyModel(BaseModel):
@@ -40,11 +44,28 @@ class VerifyTokenResponse(MyModel):
     code: str
 
 
+class CreateTaskResponse(MyModel):
+    task_id: int = Field(..., alias="id")
+    title: str
+    description: str | None
+    status: str
+    user_id: int = Field(..., alias="user")
+
+
 @final
 @dataclass
 class Client:
     host: str
     session: requests.Session
+    token: str | None = None
+
+    @cached_property
+    def headers(self) -> dict[str, str]:
+        headers = {}
+        if self.token:
+            headers["Authorization"] = f"Bearer {self.token}"
+
+        return headers
 
     class ApiError(RuntimeError):
         def __init__(
@@ -60,8 +81,8 @@ class Client:
         def __str__(self) -> str:
             return f"message:{self.message}, http_code:{self.http_code}"
 
-    def api_request(self, headers: dict | None = None) -> requests.Response:
-        response = self.session.get(f"{self.host}/api/", headers=headers)
+    def api_request(self) -> requests.Response:
+        response = self.session.get(f"{self.host}/api/", headers=self.headers)
         return response
 
     def register(
@@ -155,4 +176,32 @@ class Client:
                 http_code=response.status_code,
             )
         payload = VerifyTokenResponse.model_validate_json(response.text)
+        return payload
+
+    def create_task(
+        self,
+        *,
+        title: str,
+        description: str | None,
+        user: User,
+        status: str = "new",
+    ) -> CreateTaskResponse:
+        response = self.session.post(
+            f"{self.host}/api/tasks/",
+            data=orjson.dumps(
+                {
+                    "title": title,
+                    "description": description,
+                    "user": user.id,
+                    "status": status,
+                }
+            ),
+            headers=self.headers,
+        )
+        if not response.ok:
+            raise self.ApiError(
+                message=response.json(),
+                http_code=response.status_code,
+            )
+        payload = CreateTaskResponse.model_validate_json(response.text)
         return payload

@@ -54,8 +54,8 @@ def test_token_auth(
         username=random_user.username, password=user_password
     )
     access_token = successful_response.access
-    headers = {"Authorization": "Bearer " + access_token}
-    response = client.api_request(headers=headers)
+    client.token = access_token
+    response = client.api_request()
     assert response.status_code == status.HTTP_200_OK
 
 
