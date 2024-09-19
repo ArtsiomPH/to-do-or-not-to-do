@@ -1,6 +1,9 @@
+from typing import Any
+
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenVerifySerializer
 
 from todo.models import Task
 from todo.models import User
@@ -61,3 +64,11 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ["description", "title", "status", "user"]
+
+
+class CustomTokenVerifySerializer(TokenVerifySerializer):
+    def validate(self, attrs: Any) -> dict:
+        response: dict = super().validate(attrs)
+        if response == {}:
+            return {"code": "token_is_valid"}
+        return response

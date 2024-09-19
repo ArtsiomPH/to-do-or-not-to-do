@@ -2,6 +2,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenVerifyView
 
 from todo import serializers
 
@@ -23,3 +24,10 @@ class SignupView(generics.GenericAPIView):
                 "message": "user created successfully",
             }
         )
+
+
+class CustomTokenVerifyView(TokenVerifyView):
+    serializer_class = serializers.CustomTokenVerifySerializer  # type: ignore
+
+    def __init__(self) -> None:
+        super().__init__()

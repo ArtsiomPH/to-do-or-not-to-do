@@ -83,3 +83,11 @@ def test_refresh_dies_after_one_day(
         client.get_new_access_token(refresh_token)
     assert exc.value.http_code == status.HTTP_401_UNAUTHORIZED
     assert exc.value.message == {}
+
+
+def test_token_verify(
+    client: Client,
+    refresh_token: str,
+) -> None:
+    response = client.verify_token(refresh_token)
+    assert response.code == "token_is_valid"

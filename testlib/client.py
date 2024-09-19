@@ -36,6 +36,10 @@ class AccessTokenResponse(MyModel):
     access: str
 
 
+class VerifyTokenResponse(MyModel):
+    code: str
+
+
 @final
 @dataclass
 class Client:
@@ -134,4 +138,21 @@ class Client:
                 http_code=response.status_code,
             )
         payload = AccessTokenResponse.model_validate_json(response.text)
+        return payload
+
+    def verify_token(self, refresh_token: str) -> VerifyTokenResponse:
+        response = self.session.post(
+            f"{self.host}/api/token/verify/",
+            data=orjson.dumps(
+                {
+                    "token": refresh_token,
+                }
+            ),
+        )
+        if not response.ok:
+            raise self.ApiError(
+                message=response.json(),
+                http_code=response.status_code,
+            )
+        payload = VerifyTokenResponse.model_validate_json(response.text)
         return payload
