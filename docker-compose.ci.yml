@@ -24,11 +24,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    entrypoint: [ task, run-server-dev ]
     environment:
       <<: *app-config
     image: webapp:latest
-    init: true
+    stdin_open: true
+    tty: true
     networks:
       - example-network
     ports:
@@ -40,7 +40,6 @@ services:
     container_name: todo.db
     environment: *db-config
     image: postgres:15.3-alpine3.18
-    init: true
     networks:
       - example-network
     ports:
