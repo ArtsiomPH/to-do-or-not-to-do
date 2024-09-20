@@ -2,7 +2,6 @@
 **/__pycache__
 .env
 .env.sample
-.flake8
 .gitignore
 .local/
 .python-version
