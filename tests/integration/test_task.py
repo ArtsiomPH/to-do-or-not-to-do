@@ -93,3 +93,52 @@ def test_only_owner_can_update_task(
     assert exc.value.message == {
         "detail": "Only owners can change and delete objects"
     }
+
+
+def test_filtration(
+    client: Client,
+    random_user_access_token: str,
+    random_user_pending_task: Task,
+) -> None:
+    client.token = random_user_access_token
+    pending_tasks = client.get_all_tasks({"status": "pending"})
+    assert all(task.status == "pending" for task in pending_tasks)
+    assert random_user_pending_task.id in [
+        task.task_id for task in pending_tasks
+    ]
+
+
+def test_mark_task_completed(
+    client: Client,
+    random_user_access_token: str,
+    random_user_pending_task: Task,
+) -> None:
+    client.token = random_user_access_token
+    response = client.change_task_status(
+        random_user_pending_task.id, status="done"
+    )
+    assert response.task.task_id == random_user_pending_task.id
+    assert response.task.status == "done"
+    assert response.message == "task status updated"
+
+
+def test_delete_task(
+    another_random_user_access_token: str,
+    client: Client,
+    random_user_access_token: str,
+    random_user_task: Task,
+) -> None:
+    client.token = another_random_user_access_token
+    with pytest.raises(client.ApiError) as exc:
+        client.delete_task(random_user_task.id)
+    assert exc.value.http_code == status.HTTP_403_FORBIDDEN
+    assert exc.value.message == {
+        "detail": "Only owners can change and delete objects"
+    }
+
+    client.token = random_user_access_token
+    client.delete_task(random_user_task.id)
+    with pytest.raises(client.ApiError) as new_exc:
+        client.retrieve_task(random_user_task.id)
+    assert new_exc.value.http_code == status.HTTP_404_NOT_FOUND
+    assert new_exc.value.message == {"detail": "Not found."}

@@ -6,6 +6,7 @@ import requests
 from pydantic import BaseModel
 from pydantic import Extra
 from pydantic import Field
+from rest_framework import status
 
 from todo.models import User
 
@@ -56,6 +57,11 @@ class TasksListResponse(MyModel):
     nxt: int | None = Field(None, alias="next")
     previous: int | None
     results: list[TaskResponse]
+
+
+class TaskUpdateResponse(MyModel):
+    message: str
+    task: TaskResponse
 
 
 @final
@@ -212,9 +218,9 @@ class Client:
         payload = TaskResponse.model_validate_json(response.text)
         return payload
 
-    def get_all_tasks(self) -> list[TaskResponse]:
+    def get_all_tasks(self, params: dict | None = None) -> list[TaskResponse]:
         response = self.session.get(
-            f"{self.host}/api/tasks/", headers=self.headers
+            f"{self.host}/api/tasks/", headers=self.headers, params=params
         )
         if not response.ok:
             raise self.ApiError(
@@ -266,3 +272,36 @@ class Client:
             )
         payload = TaskResponse.model_validate_json(response.text)
         return payload
+
+    def change_task_status(
+        self,
+        task_id: int | None,
+        *,
+        status: str,
+    ) -> TaskUpdateResponse:
+        response = self.session.patch(
+            f"{self.host}/api/tasks/{task_id}/update_status/",
+            data=orjson.dumps(
+                {
+                    "status": status,
+                }
+            ),
+            headers=self.headers,
+        )
+        if not response.ok:
+            raise self.ApiError(
+                message=response.json(),
+                http_code=response.status_code,
+            )
+        payload = TaskUpdateResponse.model_validate_json(response.text)
+        return payload
+
+    def delete_task(self, task_id: int) -> None:
+        response = self.session.delete(
+            f"{self.host}/api/tasks/{task_id}/", headers=self.headers
+        )
+        if not response.status_code == status.HTTP_204_NO_CONTENT:
+            raise self.ApiError(
+                message=response.json(),
+                http_code=response.status_code,
+            )

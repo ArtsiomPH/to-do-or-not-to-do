@@ -147,3 +147,17 @@ def another_random_user_task(
     )
     yield task
     task.delete()
+
+
+@pytest.fixture(scope="function")
+def random_user_pending_task(
+    client: Client, random_user: User, task_model: Task
+) -> Iterable[Task]:
+    title = fake.word()
+    description = fake.text()
+    status = "pending"
+    task = Task.objects.create(
+        title=title, description=description, status=status, user=random_user
+    )
+    yield task
+    task.delete()
