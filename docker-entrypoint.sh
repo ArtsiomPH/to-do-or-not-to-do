@@ -10,4 +10,4 @@ echo "Creating superuser."
 poetry run python manage.py init-admin
 
 echo "Run server"
-task run-server-dev
+task run-server-prod
