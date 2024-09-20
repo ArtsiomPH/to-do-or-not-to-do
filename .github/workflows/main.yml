@@ -19,10 +19,10 @@ jobs:
         with:
           compose-file: "./docker-compose.ci.yml"
       - name: Run linters
-        run: docker compose --file docker-compose.ci.yml run --rm webapp code-lint
+        run: docker compose --file docker-compose.ci.yml run --rm webapp task code-lint
 
       - name: Run tests
-        run: docker compose --file docker-compose.ci.yml run --rm webapp run-tests
+        run: docker compose --file docker-compose.ci.yml run --rm webapp task run-tests
 
 
 

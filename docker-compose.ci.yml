@@ -31,8 +31,8 @@ services:
       - example-network
     ports:
       - "8000:80"
-    volumes:
-      - ./.local/docker/webapp/.local/:/app/.local/:rw
+    stdin_open: true
+    tty: true
 
   db:
     container_name: todo.db
@@ -48,8 +48,6 @@ services:
       retries: 6
       start_period: 6s
       timeout: 6s
-    volumes:
-      - ./.local/docker/db/data/:/var/lib/postgresql/data/:rw
 
 networks:
   example-network:
