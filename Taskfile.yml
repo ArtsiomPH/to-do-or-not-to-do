@@ -141,6 +141,7 @@ tasks:
 
   setup-toolchain:
     cmds:
+      - task: setup-toolchain-macos
       - pyenv install --skip-existing "{{.PYTHON_VERSION}}"
       - pip install --upgrade "pip=={{.PIP_VERSION}}"
       - pip install --upgrade "poetry=={{.POETRY_VERSION}}"
