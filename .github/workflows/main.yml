@@ -1,0 +1,24 @@
+name: Main
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+  push:
+    branches:
+      - 'develop'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run linters
+        run: docker-compose --file docker-compose.ci.yml run --rm webapp task code-lint
+
+      - name: Run tests
+        run: docker-compose --file docker-compose.ci.yml run --rm webapp task run-tests
+
+
+
+   

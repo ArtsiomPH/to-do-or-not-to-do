@@ -1,0 +1,64 @@
+version: '3.9'
+
+x-app-args: &app-args
+  PIP_VERSION: 23.3.1
+  POETRY_VERSION: 1.6.1
+  PYTHON_VERSION: 3.11.7
+
+x-app-config: &app-config
+  WEBAPP_MODE_DEBUG: true
+  WEBAPP_SECRET_KEY: 1
+  WEBAPP_PRIMARY_DATABASE_URL: postgresql://todo:todo@db:5432/todo
+
+x-db-config: &db-config
+  POSTGRES_DB: todo
+  POSTGRES_PASSWORD: todo
+  POSTGRES_USER: todo
+
+services:
+
+  webapp:
+    build:
+      args:
+        <<: *app-args
+      context: .
+    container_name: todo.webapp
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: [ task, run-server-prod ]
+    environment:
+      <<: *app-config
+    image: webapp:latest
+    init: true
+    networks:
+      - example-network
+    ports:
+      - "8000:80"
+    volumes:
+      - ./.local/docker/webapp/.local/:/app/.local/:rw
+
+  db:
+    container_name: todo.db
+    env_file:
+      - .env
+    environment: *db-config
+    image: postgres:15.3-alpine3.18
+    init: true
+    networks:
+      - example-network
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: pg_isready -U "${DB_USERNAME}" || exit 1
+      interval: 15s
+      retries: 6
+      start_period: 6s
+      timeout: 6s
+    volumes:
+      - ./.local/docker/db/data/:/var/lib/postgresql/data/:rw
+
+networks:
+  example-network:
+    name: todo.local
+    driver: bridge
