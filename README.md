@@ -1,5 +1,7 @@
 # ToDo list. (Django + PostgreSQL + Docker)
 
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2FArtsiomPH%2Fto-do-or-not-to-do%2Fbadge%3Fref%3Ddev&style=flat)](https://actions-badge.atrox.dev/ArtsiomPH/to-do-or-not-to-do/goto?ref=dev)
+
 ## Description
 
 Technical task for Andersen. Architecture based on [example-django-mssql-docker](https://github.com/tgrx/example-django-mssql-docker) by [Alexander Sidorov](https://github.com/tgrx).
@@ -17,6 +19,8 @@ See `.env.sample` for examples. `WEBAPP_` is a prefix for env vars.
 
 After successful build & run,
 you can open [http://localhost:8000/](http://localhost:8000/).
+
+Default admin credentials: *login* - *admin*, *password* - *admin1234*.
 
 ## Installation
 

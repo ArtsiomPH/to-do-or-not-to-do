@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import dj_database_url
 
 from domains.config import Config
@@ -5,13 +7,11 @@ from domains.fs import dirs
 
 conf = Config()
 
-
 SECRET_KEY = conf.SECRET_KEY
 
 DEBUG = conf.MODE_DEBUG
 
 ALLOWED_HOSTS = ["*"]
-
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -21,8 +21,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
+    "django_filters",
     "rest_framework",
-    "todo",
+    "rest_framework_simplejwt",
+    "todo.apps.ToDoConfig",
 ]
 
 MIDDLEWARE = [
@@ -58,7 +60,7 @@ WSGI_APPLICATION = "project.wsgi.application"
 
 DATABASES = {
     "default": dj_database_url.parse(conf.PRIMARY_DATABASE_URL),
-    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -71,6 +73,9 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": (
             "django.contrib.auth.password_validation" ".MinimumLengthValidator"
         ),
+        "OPTIONS": {
+            "min_length": 6,
+        },
     },
     {
         "NAME": (
@@ -86,6 +91,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = "todo.User"
 
 LANGUAGE_CODE = "en-us"
 
@@ -114,9 +120,22 @@ STATIC_ROOT = dirs.DIR_STATIC
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
-    ]
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend"
+    ],
+    "DEFAULT_PAGINATION_CLASS": (
+        "rest_framework.pagination.PageNumberPagination"
+    ),
+    "PAGE_SIZE": 50,
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }

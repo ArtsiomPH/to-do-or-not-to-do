@@ -81,7 +81,7 @@ ENV PYTHONUTF8=1
 
 RUN poetry env use "${PYTHON_VERSION}" \
     && poetry env info > "${DIR_CACHE}/.poetry-env-info.txt" \
-    && poetry install --without dev --no-root
+    && poetry install --with dev --no-root
 
 
 # ~~~~ Target: production ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -136,9 +136,5 @@ ENV POETRY_VIRTUALENVS_PATH="${DIR_CACHE}"
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONUTF8=1
-
-# integrate static stuff into this image
-
-RUN task collect-static
 
 EXPOSE 80
