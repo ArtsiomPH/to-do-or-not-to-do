@@ -13,7 +13,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    entrypoint: [ task, run-server-prod ]
+    entrypoint: ./docker-entrypoint.sh
     env_file:
       - .env
     image: webapp:latest
