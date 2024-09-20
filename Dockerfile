@@ -81,7 +81,7 @@ ENV PYTHONUTF8=1
 
 RUN poetry env use "${PYTHON_VERSION}" \
     && poetry env info > "${DIR_CACHE}/.poetry-env-info.txt" \
-    && poetry install --without dev --no-root
+    && poetry install --with dev --no-root
 
 
 # ~~~~ Target: production ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
