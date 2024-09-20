@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from functools import cached_property
 from typing import final
 
 import orjson
@@ -44,12 +43,19 @@ class VerifyTokenResponse(MyModel):
     code: str
 
 
-class CreateTaskResponse(MyModel):
+class TaskResponse(MyModel):
     task_id: int = Field(..., alias="id")
     title: str
     description: str | None
     status: str
     user_id: int = Field(..., alias="user")
+
+
+class TasksListResponse(MyModel):
+    count: int
+    nxt: int | None = Field(None, alias="next")
+    previous: int | None
+    results: list[TaskResponse]
 
 
 @final
@@ -59,7 +65,7 @@ class Client:
     session: requests.Session
     token: str | None = None
 
-    @cached_property
+    @property
     def headers(self) -> dict[str, str]:
         headers = {}
         if self.token:
@@ -67,7 +73,7 @@ class Client:
 
         return headers
 
-    class ApiError(RuntimeError):
+    class ApiError(Exception):
         def __init__(
             self,
             *args: tuple,
@@ -185,7 +191,7 @@ class Client:
         description: str | None,
         user: User,
         status: str = "new",
-    ) -> CreateTaskResponse:
+    ) -> TaskResponse:
         response = self.session.post(
             f"{self.host}/api/tasks/",
             data=orjson.dumps(
@@ -203,5 +209,60 @@ class Client:
                 message=response.json(),
                 http_code=response.status_code,
             )
-        payload = CreateTaskResponse.model_validate_json(response.text)
+        payload = TaskResponse.model_validate_json(response.text)
+        return payload
+
+    def get_all_tasks(self) -> list[TaskResponse]:
+        response = self.session.get(
+            f"{self.host}/api/tasks/", headers=self.headers
+        )
+        if not response.ok:
+            raise self.ApiError(
+                message=response.json(),
+                http_code=response.status_code,
+            )
+        payload = TasksListResponse.model_validate_json(response.text)
+        tasks_list = payload.results
+        return tasks_list
+
+    def retrieve_task(self, task_id: int) -> TaskResponse:
+        response = self.session.get(
+            f"{self.host}/api/tasks/{task_id}/", headers=self.headers
+        )
+        if not response.ok:
+            raise self.ApiError(
+                message=response.json(),
+                http_code=response.status_code,
+            )
+        payload = TaskResponse.model_validate_json(response.text)
+        return payload
+
+    def update_task(
+        self,
+        task_id: int | None,
+        *,
+        title: str,
+        description: str | None = None,
+        status: str | None = None,
+    ) -> TaskResponse:
+        for_update = {
+            key: value
+            for key, value in {
+                "title": title,
+                "description": description,
+                "status": status,
+            }.items()
+            if value is not None
+        }
+        response = self.session.patch(
+            f"{self.host}/api/tasks/{task_id}/",
+            data=orjson.dumps(for_update),
+            headers=self.headers,
+        )
+        if not response.ok:
+            raise self.ApiError(
+                message=response.json(),
+                http_code=response.status_code,
+            )
+        payload = TaskResponse.model_validate_json(response.text)
         return payload

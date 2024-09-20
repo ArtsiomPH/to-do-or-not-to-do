@@ -41,7 +41,6 @@ def test_refresh_token(
     assert response.access
 
 
-@pytest.mark.skip("no api with permissions")
 def test_token_auth(
     client: Client,
     random_user: User,
@@ -71,18 +70,18 @@ def test_refresh_lives_lower_than_seven_day(
 
 @pytest.mark.skip("unexpected passing")
 def test_refresh_dies_after_seven_day(
-    client: Client, random_user: User, user_password: str
+    client: Client, refresh_token: str
 ) -> None:
-    refresh_token = client.get_refresh_token(
-        username=random_user.username, password=user_password
-    )
     exc: pytest.ExceptionInfo
 
     with pytest.raises(client.ApiError) as exc, freeze_time() as frozen_time:
         frozen_time.tick(timedelta(days=10))
-        client.get_new_access_token(refresh_token)
+        client.get_new_access_token(refresh_token=refresh_token)
     assert exc.value.http_code == status.HTTP_401_UNAUTHORIZED
-    assert exc.value.message == {}
+    assert exc.value.message == {
+        "detail": "Token is invalid or expired",
+        "code": "token_not_valid",
+    }
 
 
 def test_token_verify(
