@@ -138,5 +138,3 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONUTF8=1
 
 EXPOSE 80
-
-ENTRYPOINT /bin/sh -c ./docker-entrypoint.sh
