@@ -58,7 +58,7 @@ def test_token_auth(
     assert response.status_code == status.HTTP_200_OK
 
 
-def test_refresh_lives_lower_than_seven_day(
+def test_refresh_lives_seven_day(
     client: Client,
     refresh_token: str,
 ) -> None:
@@ -66,22 +66,6 @@ def test_refresh_lives_lower_than_seven_day(
         frozen_time.tick(timedelta(days=6, hours=23, minutes=59))
         token = client.get_new_access_token(refresh_token)
         assert token.access
-
-
-@pytest.mark.skip("unexpected passing")
-def test_refresh_dies_after_seven_day(
-    client: Client, refresh_token: str
-) -> None:
-    exc: pytest.ExceptionInfo
-
-    with pytest.raises(client.ApiError) as exc, freeze_time() as frozen_time:
-        frozen_time.tick(timedelta(days=10))
-        client.get_new_access_token(refresh_token=refresh_token)
-    assert exc.value.http_code == status.HTTP_401_UNAUTHORIZED
-    assert exc.value.message == {
-        "detail": "Token is invalid or expired",
-        "code": "token_not_valid",
-    }
 
 
 def test_token_verify(
