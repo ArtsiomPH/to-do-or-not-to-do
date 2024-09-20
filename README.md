@@ -1,6 +1,6 @@
 # ToDo list. (Django + PostgreSQL + Docker)
 
-[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2FArtsiomPH%2Fto-do-or-not-to-do%2Fbadge%3Fref%3Ddev&style=flat)](https://actions-badge.atrox.dev/ArtsiomPH/to-do-or-not-to-do/goto?ref=dev)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2FArtsiomPH%2Fto-do-or-not-to-do%2Fbadge%3Fref%3Dmain&style=flat)](https://actions-badge.atrox.dev/ArtsiomPH/to-do-or-not-to-do/goto?ref=main)
 
 ## Description
 
