@@ -27,7 +27,6 @@ services:
     environment:
       <<: *app-config
     image: webapp:latest
-    entrypoint: ./docker-entrypoint.sh
     networks:
       - example-network
     ports:
