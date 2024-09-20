@@ -27,8 +27,6 @@ services:
     environment:
       <<: *app-config
     image: webapp:latest
-    stdin_open: true
-    tty: true
     networks:
       - example-network
     ports:
