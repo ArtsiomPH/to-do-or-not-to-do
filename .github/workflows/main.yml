@@ -9,7 +9,7 @@ on:
       - 'dev'
 
 jobs:
-  linters:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,6 +22,11 @@ jobs:
       - name: Run linters
         run: docker compose --file docker-compose.ci.yml run --rm webapp task code-lint
 
+      - name: Make migrations
+        run: docker compose --file docker-compose.ci.yml run --rm webapp task db-migrate
+
+      - name: Run tests
+        run: docker compose --file docker-compose.ci.yml run --rm webapp task run-tests
 
 
    
