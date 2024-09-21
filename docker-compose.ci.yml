@@ -30,7 +30,7 @@ services:
     networks:
       - example-network
     ports:
-      - "8000:80"
+      - "8000:8000"
     stdin_open: true
     tty: true
 

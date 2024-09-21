@@ -25,6 +25,9 @@ jobs:
       - name: Make migrations
         run: docker compose --file docker-compose.ci.yml run --rm webapp task db-migrate
 
+      - name: Run server dev
+        run: docker compose --file docker-compose.ci.yml run --rm webapp task run-server-dev
+
       - name: Run tests
         run: docker compose --file docker-compose.ci.yml run --rm webapp task run-tests
 
