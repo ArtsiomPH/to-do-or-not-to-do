@@ -8,6 +8,7 @@ from pydantic import Extra
 from pydantic import Field
 from rest_framework import status
 
+from todo.models import Task
 from todo.models import User
 
 
@@ -194,9 +195,9 @@ class Client:
         self,
         *,
         title: str,
-        description: str | None,
+        description: str | None = None,
         user: User,
-        status: str = "new",
+        status: str = Task.TaskStatus.NEW,
     ) -> TaskResponse:
         response = self.session.post(
             f"{self.host}/api/tasks/",

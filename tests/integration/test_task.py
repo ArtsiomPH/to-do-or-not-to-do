@@ -115,7 +115,7 @@ def test_mark_task_completed(
 ) -> None:
     client.token = random_user_access_token
     response = client.change_task_status(
-        random_user_pending_task.id, status="done"
+        random_user_pending_task.id, status=Task.TaskStatus.DONE
     )
     assert response.task.task_id == random_user_pending_task.id
     assert response.task.status == "done"
